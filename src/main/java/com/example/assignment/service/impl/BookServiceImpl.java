@@ -51,4 +51,33 @@ public class BookServiceImpl implements BookService {
         log.info("createBook End");
         return bookEntity.getId();
     }
+
+    @Override
+    public void deleteBook(Long bookId) {
+        Optional<BookEntity> bookEntity = bookRepository.findById(bookId);
+        if (bookEntity.isPresent()) {
+            bookRepository.deleteById(bookId);
+        } else {
+            throw new CustomException("Book not found with ID: " + bookId);
+        }
+    }
+
+    @Override
+    public Long updateBook(Long bookId, BookRequestDTO bookRequestDTO) {
+        Optional<BookEntity> existingBook = bookRepository.findById(bookId);
+        if (existingBook.isPresent()) {
+            BookEntity bookEntity = existingBook.get();
+            bookEntity.setTitle(bookRequestDTO.getTitle());
+
+            AuthorEntity author = authorRepository.findById(bookRequestDTO.getAuthorId())
+                    .orElseThrow(() -> new CustomException("Author not found with ID: " + bookRequestDTO.getAuthorId()));
+            log.info("author Exist {}", author);
+
+            bookEntity.setAuthor(author);
+            bookRepository.save(bookEntity);
+            return bookEntity.getId();
+        } else {
+            throw new CustomException("Book not found with ID: " + bookId);
+        }
+    }
 }
