@@ -42,4 +42,31 @@ public class AuthorServiceImpl implements AuthorService {
         log.info("createAuthor End");
         return authorEntity.getId();
     }
+
+    @Override
+    public void deleteAuthor(Long authorId) {
+        Optional<AuthorEntity> authorEntity = authorRepository.findById(authorId);
+        if (authorEntity.isPresent()) {
+            authorRepository.deleteById(authorId);
+        } else {
+            throw new CustomException("Author not found with ID: " + authorId);
+        }
+    }
+    @Override
+    public Long updateAuthor(Long authorId, AuthorRequestDTO authorRequestDTO) {
+        Optional<AuthorEntity> existingAuthor = authorRepository.findById(authorId);
+        if (existingAuthor.isPresent()) {
+            AuthorEntity authorEntity = existingAuthor.get();
+            authorEntity.setAuthorName(authorRequestDTO.getAuthorName());
+            authorEntity.setEmail(authorRequestDTO.getEmail());
+            authorEntity.setMobileNumber(authorRequestDTO.getMobile());
+            authorRepository.save(authorEntity);
+            return authorEntity.getId();
+        } else {
+            throw new CustomException("Author not found with ID: " + authorId);
+        }
+    }
+
+
+
 }
